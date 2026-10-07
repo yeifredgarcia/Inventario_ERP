@@ -1,109 +1,89 @@
+<?php
+session_start();
+if (!isset($_SESSION['usuario'])) {
+    header("Location: login.php");
+    exit();
+}
+require_once 'config/conexion.php';
+
+// Conteo total para las tarjetas de arriba
+$totalInsumos = $conexion->query("SELECT COUNT(*) FROM inventario_general")->fetchColumn();
+$porVencer    = $conexion->query("SELECT COUNT(*) FROM inventario_general WHERE estado = 'Por Vencer'")->fetchColumn();
+$vencidos     = $conexion->query("SELECT COUNT(*) FROM inventario_general WHERE estado = 'Vencido'")->fetchColumn();
+
+// Traer las categorías registradas para generar los módulos por separado
+$categorias   = $conexion->query("SELECT * FROM categorias ORDER BY nombre_categoria ASC")->fetchAll();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bienvenidos</title>
+  <title>Dashboard - Inventario Médico</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-    body { display: flex; background-color: #f4f6f9; color: #333; min-height: 100vh; }
-
-    .sidebar { width: 240px; height: 100vh; background: #1e293b; color: #fff; padding: 20px; position: fixed; }
-    .sidebar h2 { font-size: 1.2rem; margin-bottom: 40px; text-align: center; color: #e1e7e9; }
-    .sidebar ul { list-style: none; }
-    .sidebar li { margin-bottom: 15px; }
-    .sidebar a { color: #94a3b8; text-decoration: none; display: block; padding: 10px; border-radius: 6px; transition: 0.3s; }
-    .sidebar a:hover, .sidebar a.active { background: #334155; color: #fff; }
-
-    
-    .main-content {
-      margin-left: 240px;
-      width: calc(100% - 240px);
-      padding: 15px 30px 30px 30px; 
-    }
-
-    .actions-grid {
-      display: flex;
-      gap: 40px; 
-      width: 100%;
-      margin-top: 0px; 
-    }
-
-    /* Tarjetas individuales */
-    .card-option {
-      flex: 1;
-      background: #fff;
-      padding:  25px;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      transition: transform 0.2s, box-shadow 0.2s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;    
-      justify-content: center; 
-      text-align: center;
-    }
-
-    .card-option:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .card-option h2 {
-      font-size: 1.3rem;
-      color: #0f172a;
-      margin-bottom: 15px;
-    }
-
-    .card-option button {
-      background-color: #3b82f6;
-      color: white;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: background 0.2s;
-    }
-
-    .card-option button:hover {
-      background-color: #2563eb;
-    }
+    body { background-color: #f4f6f9; color: #333; }
+    header { background: #1e293b; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+    header a { color: #f87171; text-decoration: none; font-weight: bold; }
+    .container { padding: 30px; max-width: 1100px; margin: auto; }
+    .cards { display: flex; gap: 20px; margin-bottom: 30px; }
+    .card { flex: 1; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; }
+    .card h3 { font-size: 2rem; color: #0284c7; }
+    .card p { color: #64748b; margin-top: 5px; }
+    .grid-modulos { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
+    .card-modulo { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; border-top: 4px solid #0284c7; }
+    .card-modulo h4 { color: #1e293b; font-size: 1.2rem; margin-bottom: 10px; }
+    .btn-main { display: inline-block; background: #0284c7; color: white; padding: 10px 16px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 0.9rem; }
+    .btn-main:hover { background: #0369a1; }
   </style>
 </head>
 <body>
 
-  <aside class="sidebar">
-    <h2>Inventario</h2>
-    <ul>
-      <li><a href="#" class="active">Inicio</a></li>
-      <li><a href="#">Control</a></li>
-      <li><a href="#">Insumos</a></li>
-      <li><a href="#">Medicamentos</a></li>
-    </ul>
-  </aside>
-
-  <main class="main-content">
-    <div class="actions-grid">
-      
-      <!-- Bloque 1: Insumos -->
-      <div class="card-option">
-        <h2>Insumos</h2>
-        <form method="post" action="insumos.php">
-          <button type="submit">Gestionar Insumos</button>
-        </form>
-      </div>
-
-      <!-- Bloque 2: Medicamentos -->
-      <div class="card-option">
-        <h2>Medicamentos</h2>
-        <form method="post" action="medicamentos.php">
-          <button type="submit">Gestionar Medicamentos</button>
-        </form>
-      </div>
-
+  <header>
+    <h2>Sistema de Inventario Médico</h2>
+    <div>
+      <span>Bienvenido, <strong><?= $_SESSION['nombre_completo'] ?? $_SESSION['usuario'] ?></strong></span> | 
+      <a href="logout.php">Cerrar Sesión</a>
     </div>
-  </main>
+  </header>
+
+  <div class="container">
+    <!-- Tarjetas de Conteo General (Exactas al diseño original) -->
+    <div class="cards">
+      <div class="card">
+        <h3><?= $totalInsumos ?></h3>
+        <p>Total Insumos</p>
+      </div>
+      <div class="card">
+        <h3 style="color: #f59e0b;"><?= $porVencer ?></h3>
+        <p>Por Vencer</p>
+      </div>
+      <div class="card">
+        <h3 style="color: #ef4444;"><?= $vencidos ?></h3>
+        <p>Vencidos</p>
+      </div>
+    </div>
+
+    <!-- Secciones / Inventarios Separados -->
+    <h3 style="color: #1e293b; margin-bottom: 10px;">Seleccione el Inventario a Gestionar:</h3>
+    
+    <div class="grid-modulos">
+      <!-- Opción 1: Ver Todo -->
+      <div class="card-modulo">
+        <h4>Inventario General</h4>
+        <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 15px;">Ver todos los insumos juntos sin filtrar.</p>
+        <a href="modulos/listar.php" class="btn-main">Ver Todo</a>
+      </div>
+
+      <!-- Opciones por Categoría Separada -->
+      <?php foreach ($categorias as $cat): ?>
+        <div class="card-modulo">
+          <h4><?= htmlspecialchars($cat['nombre_categoria']) ?></h4>
+          <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 15px;">Gestión exclusiva de esta área.</p>
+          <a href="modulos/listar.php?cat=<?= $cat['id_categoria'] ?>" class="btn-main">Gestionar <?= htmlspecialchars($cat['nombre_categoria']) ?></a>
+        </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
 
 </body>
 </html>
