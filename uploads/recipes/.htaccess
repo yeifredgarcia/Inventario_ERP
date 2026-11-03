@@ -1,0 +1,3 @@
+# Los récipes no se pueden abrir por dirección directa: solo a través de modulos/orden_recipe.php
+Require all denied
+Options -Indexes

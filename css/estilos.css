@@ -1,0 +1,56 @@
+/* Colores institucionales: cambie estas variables para ajustarlos a la identidad de la universidad */
+:root {
+    --color-institucional: #0b4f8a;
+    --color-institucional-oscuro: #083b69;
+    --color-secundario: #f2b705;
+}
+
+body { background-color: #f4f6f9; }
+
+.barra-institucional { background-color: var(--color-institucional); }
+.texto-institucional { color: var(--color-institucional); }
+.titulo-institucional { color: var(--color-institucional); font-weight: 700; }
+.borde-institucional { border-top: 4px solid var(--color-secundario); }
+
+.btn-institucional { background-color: var(--color-institucional); border-color: var(--color-institucional); color: #fff; }
+.btn-institucional:hover, .btn-institucional:focus { background-color: var(--color-institucional-oscuro); border-color: var(--color-institucional-oscuro); color: #fff; }
+
+.fondo-login { background: linear-gradient(135deg, var(--color-institucional) 0%, var(--color-institucional-oscuro) 100%); }
+.tarjeta-login { width: 100%; max-width: 380px; }
+
+@media print {
+    .no-imprimir, .navbar, footer { display: none !important; }
+    body { background: #fff; }
+    .card { box-shadow: none !important; border: none !important; }
+}
+
+/* ---------- Barra lateral izquierda ---------- */
+.contenedor-app { display: flex; min-height: 100vh; }
+.contenido-app { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.contenido-app > main { flex: 1; }
+
+.barra-lateral {
+    background-color: var(--color-institucional);
+    color: #fff;
+    width: 250px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    /* En pantallas pequeñas se oculta y se abre con el botón "Menú" */
+    position: fixed; top: 0; bottom: 0; left: 0; z-index: 1040;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+    overflow-y: auto;
+}
+.barra-lateral.abierta { transform: none; box-shadow: 0 0 20px rgba(0,0,0,.4); }
+@media (min-width: 992px) {
+    .barra-lateral { position: sticky; height: 100vh; transform: none; box-shadow: none; }
+}
+.marca-lateral { padding: 1.5rem 1.25rem 1rem; border-bottom: 1px solid rgba(255,255,255,.2); }
+.menu-lateral { padding: 1rem .75rem; gap: .25rem; flex-grow: 1; }
+.menu-lateral .nav-link { color: rgba(255,255,255,.88); border-radius: .4rem; padding: .6rem .9rem; }
+.menu-lateral .nav-link:hover { background: rgba(255,255,255,.14); color: #fff; }
+.menu-lateral .nav-link.active { background: var(--color-secundario); color: #1b1b1b; font-weight: 600; }
+.usuario-lateral { padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,.2); }
+
+.menu-lateral .nav-link.bloqueado { opacity: .6; cursor: not-allowed; }
